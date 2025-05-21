@@ -1,0 +1,34 @@
+import os
+import pydicom
+
+def load_dicom_folder(folder_path):
+    dicom_files = []
+    for filename in os.listdir(folder_path):
+        filepath = os.path.join(folder_path, filename)
+        if os.path.isfile(filepath):
+            try:
+                ds = pydicom.dcmread(filepath, force=True)
+                dicom_files.append(ds)
+            except Exception as e:
+                print(f"Не удалось прочитать {filepath}: {e}")
+    return dicom_files
+
+# Задай путь к папке с DICOM-файлами (используй raw-строку)
+folder_path = r"E:\dicom dataset\1Р\DICOM\11101015\12160000"
+dicom_data = load_dicom_folder(folder_path)
+print("Количество успешно загруженных DICOM-файлов:", len(dicom_data))
+
+# Если файл(ы) успешно загружены, извлекаем информацию о пациенте из первого файла
+if dicom_data:
+    ds = dicom_data[0]  # Обычно все файлы одного исследования содержат одинаковую информацию о пациенте
+    patient_name = ds.get("PatientName", "Не указано")
+    patient_id = ds.get("PatientID", "Не указан")
+    patient_sex = ds.get("PatientSex", "Не указан")
+    patient_birth_date = ds.get("PatientBirthDate", "Не указано")
+    
+    print("Имя пациента:", patient_name)
+    print("ID пациента:", patient_id)
+    print("Пол:", patient_sex)
+    print("Дата рождения:", patient_birth_date)
+else:
+    print("Нет загруженных файлов.")
